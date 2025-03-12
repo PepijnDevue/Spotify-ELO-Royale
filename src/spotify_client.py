@@ -1,6 +1,6 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from keys import client_id, client_secret
+import streamlit as st
 
 class SpotifyClient:
     """Handles authentication and data retrieval from Spotify API."""
@@ -8,8 +8,8 @@ class SpotifyClient:
     def __init__(self) -> None:
         """Initializes the Spotify API client."""
         self._sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-            client_id=client_id,
-            client_secret=client_secret,
+            client_id=st.secrets['client_id'],
+            client_secret=st.secrets['client_secret'],
             redirect_uri='http://localhost:8080',
             scope='playlist-read-private'
         ))

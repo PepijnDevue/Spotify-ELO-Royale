@@ -1,19 +1,13 @@
 import streamlit as st
 
-from src.spotify_client import load_spotify_client, get_playlist_tracks
-
-from src.tournament import calc_max_rounds, get_swiss_pairings, update_elo
-
-from src.gui import display_track
-
-from src.exporter import save_rankings
+from src import spotify_client, tournament, gui, exporter
 
 # Streamlit app
 st.title("Spotify ELO Royale 🎵")
 st.write("Rank your favorite Spotify tracks using an ELO-based ranking system!")
 
 # Get Spotify client
-sp_client = load_spotify_client()
+sp_client = spotify_client.load_client()
 
 # Sidebar input for Spotify playlist link
 playlist_url = st.sidebar.text_input("Enter Spotify Playlist Link")
@@ -29,44 +23,43 @@ if not enable_auto_rounds:
 # save to state
 if "current_round" not in st.session_state:
     st.session_state.current_round = 0
-if "tracks" not in st.session_state:
-    st.session_state.tracks = []
-if "tournament" not in st.session_state:
-    st.session_state.tournament = []
-
+if "matches" not in st.session_state:
+    st.session_state.matches = []
 
 if playlist_url:
-    st.session_state.tracks = get_playlist_tracks(sp_client, playlist_url)
-    
+    if "tracks" not in st.session_state:
+        st.session_state.tracks = spotify_client.get_playlist_tracks(sp_client, playlist_url)
+
     # Calculate max rounds
-    max_rounds = max_rounds_inputs or calc_max_rounds()
+    max_rounds = max_rounds_inputs or tournament.calc_max_rounds()
 
     if st.session_state.current_round < max_rounds:
         
-        if not st.session_state.tournament:
-            st.session_state.tournament = get_swiss_pairings()
+        if not st.session_state.matches:
+            st.session_state.matches = tournament.get_swiss_pairings()
 
-        song_a, song_b = st.session_state.tournament.pop(0)
+        st.write(f"Round: {st.session_state.current_round}/{max_rounds}")
 
-        st.subheader(f"Choose the better song:")
+        song_l_id, song_r_id = st.session_state.matches.pop(0)
 
         col1, col2 = st.columns(2)
 
         with col1:
-            display_track(song_a)
+            gui.display_track(song_l_id)
             if st.button("Select", key="select_a"):
-                update_elo(song_a, song_b)
-                st.session_state.current_round += 1
-                st.rerun()
+                tournament.update_elo(song_l_id, song_r_id)
 
         with col2:
-            display_track(song_b)
+            gui.display_track(song_r_id)
             if st.button("Select", key="select_b"):
-                update_elo(song_b, song_a)
-                st.session_state.current_round += 1
-                st.rerun()
+                tournament.update_elo(song_r_id, song_l_id)
+
+        if not st.session_state.matches:
+            st.session_state.current_round += 1
 
     else:
-        st.success("Tournament completed! Results saved to playlist_rankings.csv")
+        playlist_name = sp_client.playlist(playlist_url)["name"]
 
-        save_rankings(st.session_state.tracks)
+        st.success(f"Tournament completed! Results saved to results/{playlist_name}.csv")
+
+        exporter.save_rankings(st.session_state.tracks, name=playlist_name)

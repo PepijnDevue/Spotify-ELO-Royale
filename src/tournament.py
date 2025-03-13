@@ -1,6 +1,7 @@
 import streamlit as st
 
 import math
+import random
 
 @st.cache_data
 def calc_max_rounds() -> int:
@@ -23,20 +24,26 @@ def get_swiss_pairings() -> list:
     Gets the swiss pairings for the tournament.
 
     Returns:
-        list: The swiss pairings.
+        list: A list of track_id pairs for the tournament.
     """
-    st.session_state.tracks.sort(key=lambda x: x['elo'], reverse=True)
+    sorted_tracks = sorted(
+        st.session_state.tracks.values(),
+        key=lambda x: x['elo'],
+        reverse=True
+    )
 
     tournament = []
-    for i in range(0, len(st.session_state.tracks) - 1, 2):
+    for i in range(0, len(sorted_tracks) - 1, 2):
         tournament.append([
-            st.session_state.tracks[i], 
-            st.session_state.tracks[i + 1]
+            sorted_tracks[i]["id"], 
+            sorted_tracks[i + 1]["id"]
         ])
+
+    random.shuffle(tournament)
 
     return tournament
 
-def update_elo(winner: dict, loser: dict):
+def update_elo(winner_id: str, loser_id: str):
     """
     Updates the ELO ratings of the winner and loser.
 
@@ -44,10 +51,13 @@ def update_elo(winner: dict, loser: dict):
         winner (dict): The winner's track information.
         loser (dict): The loser's track information.
     """
-    r_winner = winner['elo']
-    r_loser = loser['elo']
+    winner_elo = st.session_state.tracks[winner_id]['elo']
+    loser_elo = st.session_state.tracks[loser_id]['elo']
 
-    expected_win = 1 / (1 + 10 ** ((r_loser - r_winner) / 400))
+    expected_win = 1 / (1 + 10 ** ((loser_elo - winner_elo) / 400))
 
-    winner['elo'] += 32 * (1 - expected_win)
-    loser['elo'] += 32 * (-expected_win)
+    winner_add = 32 * (1 - expected_win)
+    loser_add = 32 * (-expected_win)
+
+    st.session_state.tracks[winner_id]['elo'] += winner_add
+    st.session_state.tracks[loser_id]['elo'] += loser_add

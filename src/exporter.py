@@ -1,17 +1,21 @@
-import csv
+import pandas as pd
 
-def save_rankings(tracks: list):
+def save_rankings(tracks: dict, name: str = "playlist") -> None:
     """
     Saves the rankings of the tracks to a CSV file.
 
     Args:
-        tracks (list): The list of tracks
+        tracks (dict): The dictionary containing track information.
+        name (str): The name of the playlist.
     """
-    ranked_tracks = sorted(tracks, key=lambda x: x['elo'], reverse=True)
+    ranked_tracks = sorted(
+        tracks.values(), 
+        key=lambda x: x['elo'], 
+        reverse=True
+    )
 
-    with open('playlist_rankings.csv', 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(['Rank', 'Track', 'Artist', 'Elo Rating'])
+    df = pd.DataFrame(ranked_tracks)
 
-        for idx, track in enumerate(ranked_tracks, 1):
-            writer.writerow([idx, track['name'], track['artist_name'], round(track['elo'])])
+    df['elo'] = df['elo'].round(0).astype(int)
+
+    df.to_csv(f"ratings/{name}.csv", index=False)

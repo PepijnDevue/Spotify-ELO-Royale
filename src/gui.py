@@ -1,12 +1,14 @@
 import streamlit as st
 
-def display_track(track: dict):
+def display_track(track_id: str):
     """
     Displays the track information and an embedded Spotify player.
     
     Args:
-        track (dict): The track information.
+        track_id (str): The track ID.
     """
+    track = st.session_state.tracks[track_id]
+
     st.write(f"**{track['name']}**")
     st.write(f"by {track['artist_name']}")
 

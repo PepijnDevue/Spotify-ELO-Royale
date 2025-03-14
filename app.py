@@ -26,7 +26,7 @@ if "current_round" not in st.session_state:
 if "matches" not in st.session_state:
     st.session_state.matches = []
 
-if playlist_url:
+if playlist_url != "":
     if "tracks" not in st.session_state:
         st.session_state.tracks = spotify_client.get_playlist_tracks(sp_client, playlist_url)
 

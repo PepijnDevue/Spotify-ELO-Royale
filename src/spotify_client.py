@@ -22,7 +22,6 @@ def load_client() -> spotipy.Spotify:
 
     return client
 
-@st.cache_data
 def get_playlist_tracks(_client: spotipy.Spotify, playlist_url: str) -> dict:
     """
     Fetches tracks from a given Spotify playlist URL.

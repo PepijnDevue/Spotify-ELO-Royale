@@ -23,5 +23,5 @@ if playlist_url:
         tournament.play_match()
 
     else:
-        playlist_name = spotify.get_playlist_name()
+        playlist_name = spotify.get_playlist_name(playlist_url)
         gui.display_download_button(playlist_name)

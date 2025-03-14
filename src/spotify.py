@@ -39,15 +39,20 @@ def get_playlist_tracks(playlist_url: str) -> dict:
         playlist_id = _get_playlist_id(playlist_url)
         results = client.playlist_tracks(playlist_id)
 
-        print(type(results))
+        print("Extracting track information...")
 
         # Extract track information
         tracks = {}
-        while results:
-            print(type(client.next(results)))
-            tracks.update(_get_track_info(results['items']))
+        iter_count = 0
+        max_iters = 200
+        
+        while results and iter_count < max_iters:
+            track_batch = _get_track_info(results['items'])
+            tracks.update(track_batch)
+
             results = client.next(results)
-            print(results)
+
+            iter_count += 1
 
         return tracks
     

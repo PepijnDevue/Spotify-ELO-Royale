@@ -4,3 +4,4 @@
 - Add try excepts for all inputs
 - Add reducing between rounds
 - Research optimal elo rating (tournament style, rounds, reducing, etc)
+- Add try excepts for all inputs

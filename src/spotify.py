@@ -1,11 +1,8 @@
 import streamlit as st
 
-import json
-
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 
-@st.cache_data
 def load_client() -> spotipy.Spotify:
     """
     Initializes and returns a Spotipy client using credentials from Streamlit secrets.
@@ -13,40 +10,60 @@ def load_client() -> spotipy.Spotify:
     Returns:
         spotipy.Spotify: An authenticated Spotipy client.
     """
-    auth_manager = SpotifyOAuth(
+    auth_manager = SpotifyClientCredentials(
         client_id=st.secrets["SPOTIFY_CLIENT_ID"],
-        client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"],
-        redirect_uri='http://localhost:8080',
-        scope='playlist-read-private'
+        client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"]
     )
+
+    # auth_manager = SpotifyOAuth(
+    #     client_id=st.secrets["SPOTIFY_CLIENT_ID"],
+    #     client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"],
+    #     redirect_uri='https://spotify-elo-royale.streamlit.app/callback',
+    #     scope='playlist-read-private'
+    # )
 
     client = spotipy.Spotify(auth_manager=auth_manager)
 
     return client
 
-@st.cache_data
-def get_playlist_tracks(_client: spotipy.Spotify, playlist_url: str) -> dict:
+def get_playlist_tracks(playlist_url: str) -> dict:
     """
     Fetches tracks from a given Spotify playlist URL.
     
     Args:
-        client (spotipy.Spotify): An authenticated Spotipy client.
         playlist_url (str): The URL of the Spotify playlist.
     
     Returns:
         dict: A dictionary containing track information.
     """
-    playlist_id = _get_playlist_id(playlist_url)
+    try:
+        print("Fetching playlist tracks...")
 
-    results = _client.playlist_tracks(playlist_id)
+        client = st.session_state.sp_client
 
-    # Extract track information
-    tracks = {}
-    while results:
-        tracks.update(_get_track_info(results['items']))
-        results = _client.next(results)
+        playlist_id = _get_playlist_id(playlist_url)
+        results = client.playlist_tracks(playlist_id)
 
-    return tracks
+        print("Extracting track information...")
+
+        # Extract track information
+        tracks = {}
+        iter_count = 0
+        max_iters = 200
+        
+        while results and iter_count < max_iters:
+            track_batch = _get_track_info(results['items'])
+            tracks.update(track_batch)
+
+            results = client.next(results)
+
+            iter_count += 1
+
+        return tracks
+    
+    except Exception as e:
+        st.error(f"Error fetching playlist tracks: {e}")
+        return {}
 
 def _get_track_info(tracks: list) -> dict:
     """Extracts track information from the given list of track items.

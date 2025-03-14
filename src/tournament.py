@@ -3,6 +3,26 @@ import streamlit as st
 import math
 import random
 
+import gui
+
+def play_match():
+    """
+    Plays a match between two tracks and updates the ELO ratings.
+    """
+    song_l_id, song_r_id = st.session_state.matches.pop(0)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        gui.display_track(song_l_id)
+        if st.button("Select", key="select_a"):
+            update_elo(song_l_id, song_r_id)
+
+    with col2:
+        gui.display_track(song_r_id)
+        if st.button("Select", key="select_b"):
+            update_elo(song_r_id, song_l_id)
+
 @st.cache_data
 def calc_max_rounds(max_round_inputs: None|int) -> int:
     """

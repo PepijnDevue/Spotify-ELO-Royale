@@ -1,7 +1,7 @@
 import streamlit as st
 
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials
 
 def load_client() -> spotipy.Spotify:
     """
@@ -15,16 +15,24 @@ def load_client() -> spotipy.Spotify:
         client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"]
     )
 
-    # auth_manager = SpotifyOAuth(
-    #     client_id=st.secrets["SPOTIFY_CLIENT_ID"],
-    #     client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"],
-    #     redirect_uri='https://spotify-elo-royale.streamlit.app/callback',
-    #     scope='playlist-read-private'
-    # )
-
     client = spotipy.Spotify(auth_manager=auth_manager)
 
     return client
+
+def get_playlist_name(playlist_url: str) -> str:
+    """
+    Fetches the name of the Spotify playlist.
+
+    Args:
+        playlist_url (str): The URL of the Spotify playlist.
+
+    Returns:
+        str: The name of the Spotify playlist.
+    """
+    if client := st.session_state.sp_client:
+        return client.playlist(playlist_url)["name"]
+    
+    return "Unknown Playlist"
 
 def get_playlist_tracks(playlist_url: str) -> dict:
     """

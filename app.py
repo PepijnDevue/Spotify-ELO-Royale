@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src import tournament, gui, exporter, spotify
+from src import tournament, gui, spotify
 
 def set_session_state(key: str, value: any):
     """
@@ -22,34 +22,16 @@ if playlist_url:
     set_session_state("tracks", spotify.get_playlist_tracks(playlist_url))
 
     max_rounds = tournament.calc_max_rounds(max_rounds_inputs)
+    gui.display_rounds(max_rounds)
 
-    if st.session_state.current_round < max_rounds:
+    if st.session_state.current_round <= max_rounds:
         
         if not st.session_state.matches:
             st.session_state.matches = tournament.get_swiss_pairings()
-
-        gui.display_rounds(max_rounds)
-
-        song_l_id, song_r_id = st.session_state.matches.pop(0)
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            gui.display_track(song_l_id)
-            if st.button("Select", key="select_a"):
-                tournament.update_elo(song_l_id, song_r_id)
-
-        with col2:
-            gui.display_track(song_r_id)
-            if st.button("Select", key="select_b"):
-                tournament.update_elo(song_r_id, song_l_id)
-
-        if not st.session_state.matches:
             st.session_state.current_round += 1
 
+        tournament.play_match()
+
     else:
-        playlist_name = st.session_state.sp_client.playlist(playlist_url)["name"]
-
-        st.success(f"Tournament completed! Results saved to results/{playlist_name}.csv")
-
-        exporter.save_rankings(st.session_state.tracks, name=playlist_name)
+        playlist_name = spotify.get_playlist_name()
+        gui.display_download_button(playlist_name)

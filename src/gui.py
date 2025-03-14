@@ -1,4 +1,5 @@
 import streamlit as st
+import exporter
 
 def display_header():
     """
@@ -48,3 +49,16 @@ def display_track(track_id: str):
     embed_url = f"https://open.spotify.com/embed/track/{track['id']}" 
 
     st.components.v1.iframe(embed_url, width=400, height=352, scrolling=False)
+
+def display_download_button(playlist_name: str) -> None:
+    """
+    Displays a download button for the ranked playlist.
+    """
+    data = exporter.save_rankings(st.session_state.tracks)
+
+    st.download_button(
+        label="Download Rankings",
+        data=data,
+        file_name=f"{playlist_name}_rankings.csv",
+        mime="text/csv"
+    )

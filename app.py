@@ -1,7 +1,6 @@
 import streamlit as st
 
-from src import tournament, gui, spotify
-from . import statehandler
+from src import tournament, gui, spotify, statehandler
 
 gui.display_header()
 

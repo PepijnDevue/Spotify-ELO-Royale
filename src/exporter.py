@@ -1,4 +1,5 @@
 import pandas as pd
+import streamlit as st
 
 def save_rankings(tracks: dict, name: str = "playlist") -> None:
     """
@@ -18,4 +19,11 @@ def save_rankings(tracks: dict, name: str = "playlist") -> None:
 
     df['elo'] = df['elo'].round(0).astype(int)
 
-    df.to_csv(f"ratings/{name}.csv", index=False)
+    csv = df.to_csv(index=False).encode()
+
+    st.download_button(
+        label="Download Rankings",
+        data=csv,
+        file_name=f"{name}_rankings.csv",
+        mime="text/csv"
+    )

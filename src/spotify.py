@@ -13,7 +13,7 @@ def load_client() -> spotipy.Spotify:
     auth_manager = SpotifyOAuth(
         client_id=st.secrets["SPOTIFY_CLIENT_ID"],
         client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"],
-        redirect_uri='https://spotify-elo-royale.streamlit.app',
+        redirect_uri='https://spotify-elo-royale.streamlit.app/callback',
         scope='playlist-read-private'
     )
 

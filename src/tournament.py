@@ -4,18 +4,21 @@ import math
 import random
 
 @st.cache_data
-def calc_max_rounds() -> int:
+def calc_max_rounds(max_round_inputs: None|int) -> int:
     """
     Calculates the maximum number of rounds.
     If the input max_rounds is 0:
     the function calculates the maximum rounds based on the number of tracks.
     
     Args:
-        len_tracks (int): The number of tracks.
+        max_round_inputs (None|int): The input max rounds.
     
     Returns:
         int: The maximum number of rounds.
     """
+    if max_round_inputs:
+        return max_round_inputs
+
     len_tracks = len(st.session_state.tracks)
     return int(1.5 * math.log2(len_tracks))
 

@@ -2,42 +2,33 @@ import streamlit as st
 
 from src import tournament, gui, exporter, spotify
 
-# Streamlit app
-st.title("Spotify ELO Royale 🎵")
-st.write("Rank your favorite Spotify tracks using an ELO-based ranking system!")
+def set_session_state(key: str, value: any):
+    """
+    Sets a session state variable if it does not exist."
+    """
+    if key not in st.session_state:
+        st.session_state[key] = value
 
-# Sidebar input for Spotify playlist link
-playlist_url = st.sidebar.text_input("Enter Spotify Playlist Link")
+gui.display_header()
 
-# Sidebar toggle for automatic max rounds calculation
-enable_auto_rounds = st.sidebar.checkbox("Automatically calculate max rounds", value=True)
-
-# Sidebar input for max rounds if automatic calculation is disabled
-max_rounds_inputs = None 
-if not enable_auto_rounds:
-    max_rounds_inputs = st.sidebar.slider("Max Rounds", 3, 10, 3)
+playlist_url, max_rounds_inputs = gui.display_sidebar()
 
 # Initialize session state variables
-if "sp_client" not in st.session_state:
-    st.session_state.sp_client = spotify.load_client()
-if "current_round" not in st.session_state:
-    st.session_state.current_round = 0
-if "matches" not in st.session_state:
-    st.session_state.matches = []
+set_session_state("sp_client", spotify.load_client())
+set_session_state("current_round", 0)
+set_session_state("matches", [])
 
 if playlist_url:
-    if "tracks" not in st.session_state:
-        st.session_state.tracks = spotify.get_playlist_tracks(playlist_url)
+    set_session_state("tracks", spotify.get_playlist_tracks(playlist_url))
 
-    # Calculate max rounds
-    max_rounds = max_rounds_inputs or tournament.calc_max_rounds()
+    max_rounds = tournament.calc_max_rounds(max_rounds_inputs)
 
     if st.session_state.current_round < max_rounds:
         
         if not st.session_state.matches:
             st.session_state.matches = tournament.get_swiss_pairings()
 
-        st.write(f"Round: {st.session_state.current_round}/{max_rounds}")
+        gui.display_rounds(max_rounds)
 
         song_l_id, song_r_id = st.session_state.matches.pop(0)
 

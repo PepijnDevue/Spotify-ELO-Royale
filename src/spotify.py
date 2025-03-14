@@ -1,7 +1,7 @@
 import streamlit as st
 
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 
 def load_client() -> spotipy.Spotify:
     """
@@ -10,12 +10,17 @@ def load_client() -> spotipy.Spotify:
     Returns:
         spotipy.Spotify: An authenticated Spotipy client.
     """
-    auth_manager = SpotifyOAuth(
+    auth_manager = SpotifyClientCredentials(
         client_id=st.secrets["SPOTIFY_CLIENT_ID"],
-        client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"],
-        redirect_uri='https://spotify-elo-royale.streamlit.app/callback',
-        scope='playlist-read-private'
+        client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"]
     )
+
+    # auth_manager = SpotifyOAuth(
+    #     client_id=st.secrets["SPOTIFY_CLIENT_ID"],
+    #     client_secret=st.secrets["SPOTIFY_CLIENT_SECRET"],
+    #     redirect_uri='https://spotify-elo-royale.streamlit.app/callback',
+    #     scope='playlist-read-private'
+    # )
 
     client = spotipy.Spotify(auth_manager=auth_manager)
 

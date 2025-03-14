@@ -1,7 +1,5 @@
 import streamlit as st
 
-import json
-
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
@@ -36,15 +34,21 @@ def get_playlist_tracks(_client: spotipy.Spotify, playlist_url: str) -> dict:
     Returns:
         dict: A dictionary containing track information.
     """
+    print("Fetching playlist tracks...")
+
     playlist_id = _get_playlist_id(playlist_url)
 
     results = _client.playlist_tracks(playlist_id)
 
+    print(results)
+
     # Extract track information
     tracks = {}
     while results:
+        print(_client.next(results))
         tracks.update(_get_track_info(results['items']))
         results = _client.next(results)
+        print(results)
 
     return tracks
 

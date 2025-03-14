@@ -3,7 +3,6 @@ import streamlit as st
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-@st.cache_data
 def load_client() -> spotipy.Spotify:
     """
     Initializes and returns a Spotipy client using credentials from Streamlit secrets.
@@ -22,34 +21,39 @@ def load_client() -> spotipy.Spotify:
 
     return client
 
-def get_playlist_tracks(_client: spotipy.Spotify, playlist_url: str) -> dict:
+def get_playlist_tracks(playlist_url: str) -> dict:
     """
     Fetches tracks from a given Spotify playlist URL.
     
     Args:
-        client (spotipy.Spotify): An authenticated Spotipy client.
         playlist_url (str): The URL of the Spotify playlist.
     
     Returns:
         dict: A dictionary containing track information.
     """
-    print("Fetching playlist tracks...")
+    try:
+        print("Fetching playlist tracks...")
 
-    playlist_id = _get_playlist_id(playlist_url)
+        client = st.session_state.sp_client
 
-    results = _client.playlist_tracks(playlist_id)
+        playlist_id = _get_playlist_id(playlist_url)
+        results = client.playlist_tracks(playlist_id)
 
-    print(results)
+        print(type(results))
 
-    # Extract track information
-    tracks = {}
-    while results:
-        print(_client.next(results))
-        tracks.update(_get_track_info(results['items']))
-        results = _client.next(results)
-        print(results)
+        # Extract track information
+        tracks = {}
+        while results:
+            print(type(client.next(results)))
+            tracks.update(_get_track_info(results['items']))
+            results = client.next(results)
+            print(results)
 
-    return tracks
+        return tracks
+    
+    except Exception as e:
+        st.error(f"Error fetching playlist tracks: {e}")
+        return {}
 
 def _get_track_info(tracks: list) -> dict:
     """Extracts track information from the given list of track items.

@@ -3,7 +3,7 @@ import streamlit as st
 import math
 import random
 
-import gui
+from . import gui
 
 def play_match():
     """

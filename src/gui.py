@@ -1,5 +1,5 @@
 import streamlit as st
-import exporter
+from . import exporter
 
 def display_header():
     """

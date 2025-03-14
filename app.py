@@ -1,28 +1,20 @@
 import streamlit as st
 
 from src import tournament, gui, spotify
-
-def set_session_state(key: str, value: any):
-    """
-    Sets a session state variable if it does not exist."
-    """
-    if key not in st.session_state:
-        st.session_state[key] = value
+from . import statehandler
 
 gui.display_header()
 
 playlist_url, max_rounds_inputs = gui.display_sidebar()
 
-# Initialize session state variables
-set_session_state("sp_client", spotify.load_client())
-set_session_state("current_round", 0)
-set_session_state("matches", [])
+max_rounds = tournament.calc_max_rounds(max_rounds_inputs)
+
+gui.display_rounds(max_rounds)
+
+statehandler.init_session_state()
 
 if playlist_url:
-    set_session_state("tracks", spotify.get_playlist_tracks(playlist_url))
-
-    max_rounds = tournament.calc_max_rounds(max_rounds_inputs)
-    gui.display_rounds(max_rounds)
+    statehandler.set_session_state("tracks", spotify.get_playlist_tracks(playlist_url))
 
     if st.session_state.current_round <= max_rounds:
         

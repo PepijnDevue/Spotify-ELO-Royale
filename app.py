@@ -16,10 +16,12 @@ if playlist_url:
     if st.session_state.current_round <= max_rounds:
         
         gui.display_rounds(max_rounds)
-        
+        print("--")
+        print(st.session_state.matches)
         if not st.session_state.matches:
             st.session_state.matches = tournament.get_swiss_pairings()
             st.session_state.current_round += 1
+            print(st.session_state.matches)
 
         tournament.play_match()
 

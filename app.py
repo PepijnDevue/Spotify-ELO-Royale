@@ -8,8 +8,10 @@ playlist_url, max_rounds_inputs = gui.display_sidebar()
 
 statehandler.init_session_state()
 
+print
 if playlist_url:
     statehandler.set_session_state("tracks", spotify.get_playlist_tracks(playlist_url))
+    print(f"tr: {st.session_state.tracks}")
 
     max_rounds = tournament.calc_max_rounds(max_rounds_inputs)
 

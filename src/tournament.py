@@ -83,3 +83,12 @@ def update_elo(winner_id: str, loser_id: str):
 
     st.session_state.tracks[winner_id]['elo'] += winner_add
     st.session_state.tracks[loser_id]['elo'] += loser_add
+
+def len_playlist() -> int:
+    """
+    Returns the length of the playlist.
+
+    Returns:
+        int: The length of the playlist.
+    """
+    return len(st.session_state.tracks)

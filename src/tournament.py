@@ -23,7 +23,6 @@ def play_match():
         if st.button("Select", key="select_b"):
             update_elo(song_r_id, song_l_id)
 
-@st.cache_data
 def calc_max_rounds(max_round_inputs: None|int) -> int:
     """
     Calculates the maximum number of rounds.

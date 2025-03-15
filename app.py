@@ -13,6 +13,7 @@ if playlist_url:
 
     max_rounds = tournament.calc_max_rounds(max_rounds_inputs)
 
+    print(f"cr: {st.session_state.current_round}")
     if st.session_state.current_round <= max_rounds:
         
         gui.display_rounds(max_rounds)
